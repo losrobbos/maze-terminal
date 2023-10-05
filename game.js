@@ -10,6 +10,16 @@ let maze = [
   "|                E  |",
   "|-------------------|",
 ];
+
+// load your custom maze from file (if exists)
+try {
+  maze = require("./maze.js");
+}
+catch(err) {
+  // no custom maze found. no prob. just take default above  
+}
+
+
 let row, col;
 let playerPlaced = false;
 let gameOver = false;
@@ -103,10 +113,10 @@ printMaze(maze);
 
 do {
   // let user place player at position
-  row = readline.questionInt(`Row pleeeeze: \n(Min: 1, Max: ${maze.length})`);
+  row = readline.questionInt(`Row pleeeeze: \n(Min: 2, Max: ${maze.length-1})`);
 
   col = readline.questionInt(
-    `Column pleeeeze: \n(Min: 1, Max: ${maze[0].length})`
+    `Column pleeeeze: \n(Min: 2, Max: ${maze[0].length-1})`
   );
 
   row = parseInt(row)

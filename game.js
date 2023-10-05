@@ -3,11 +3,11 @@ const colors = require("./colors");
 
 let maze = [
   "|-------------------|",
-  "|       |           |",
+  "|        |          |",
   "|          |        |",
   "|             |     |",
-  "|             |     |",
-  "|             E     |",
+  "|                |  |",
+  "|                E  |",
   "|-------------------|",
 ];
 let row, col;
@@ -25,6 +25,9 @@ maze = maze.map((row) => {
 // move to next possible position (up, right, down, left)
 let path = []; // breadcrumb: { row: 3, col: 3 }, { row: 2, col: 3 }, { row: 2, col: 4 }
 
+/**
+ * 
+ */
 const checkNextField = (maze, row, col) => {
   if (maze[row][col] === "E") {
     gameOver = true;
@@ -32,40 +35,57 @@ const checkNextField = (maze, row, col) => {
   }
   // move possible!
   if (maze[row][col] === " ") {
-    maze[row][col] = "X";
-    path.push([row, col]);
     return true;
   }
   // move not possible
   return false;
 };
 
-const move = (maze) => {
-  // check next possible move (up, right, down, left)
+const moves = [
+  [0,1], // right (=> 0 row move, 1 col move right)
+  [1,0], // down (=> 1 row move down, 0 col move)
+  [0, -1], // left (=> 0 row move, 1 col move left)
+  [-1, 0] // up (=> 1 row move up, 0 col move)
+]
 
-  // right possible?
-  if (checkNextField(maze, row, col + 1)) {
-    col++;
+/**
+ * Check next possible move
+ * If possible: mark field on board and descend down
+ * If not possible: check next move option
+ * If NO move possible from list: UNDO last operation and return back one level
+ */
+const move = (maze, row, col) => {
+
+  // check next possible move one after the other (up, right, down, left)
+  for(let [rowDiff, colDiff] of moves) {
+    let rowNext = row+rowDiff
+    let colNext = col+colDiff
+
+    // check if move possible (= field not occupied already)
+    if (checkNextField(maze, rowNext, colNext)) {
+      // reached the end? finish!!!
+      if(gameOver) break;
+
+      // not at the end => mark current path and go on...
+      maze[rowNext][colNext] = "X";
+      path.push([rowNext, colNext]);
+      move(maze, rowNext, colNext)
+    }
   }
-  // down possible?
-  else if (checkNextField(maze, row + 1, col)) {
-    row++;
-  }
-  // left possible?
-  else if (checkNextField(maze, row, col - 1)) {
-    col--;
-  }
-  // up possible?
-  else if (checkNextField(maze, row - 1, col)) {
-    row--;
-  }
+
   if (gameOver) {
     printMaze(maze);
     console.log("YOU nailed it! You found the way to the exit!");
     if (debug) {
       console.log("Your path through maze:", path);
     }
+    return true
   }
+
+  // no possible move anymore?? undo last move!
+  maze[row][col] = " "
+  path.pop()
+  return false
 };
 
 // print the rows of the maze
@@ -95,7 +115,7 @@ do {
   row--;
   col--;
 
-  if(row < 0 || row >= maze.length || col < 0 || col >= maze[0].length ) {
+  if(row < 1 || row >= maze.length-1 || col < 1 || col >= maze[0].length-1 ) {
     console.log("Position außerhalb von Board! Komm schon, so schwer?");
     continue;
   }
@@ -113,11 +133,10 @@ console.log("Gute Wahl!");
 console.log("Reihe: ", row, ",", "Spalte: ", col);
 console.log("Jetzt geht's loooooos!");
 
-maze[row][col] = "X";
+// mark start position
+maze[row][col] = "S";
 
 printMaze(maze);
 
-// now move forever to target until we found it...
-do {
-  move(maze);
-} while (!gameOver);
+// now move recursively until we found a way...
+move(maze, row, col);

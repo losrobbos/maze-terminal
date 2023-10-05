@@ -113,10 +113,10 @@ printMaze(maze);
 
 do {
   // let user place player at position
-  row = readline.questionInt(`Row pleeeeze: \n(Min: 2, Max: ${maze.length-1})`);
+  row = readline.questionInt(`Row pleeeeze\n(Min: 2, Max: ${maze.length-1}): `);
 
   col = readline.questionInt(
-    `Column pleeeeze: \n(Min: 2, Max: ${maze[0].length-1})`
+    `Column pleeeeze\n(Min: 2, Max: ${maze[0].length-1}): `
   );
 
   row = parseInt(row)

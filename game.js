@@ -16,7 +16,7 @@ try {
   maze = require("./maze.js");
 }
 catch(err) {
-  // no custom maze found. no prob. just take default above  
+  // no custom maze found. no prob. just keep default above. do nothing
 }
 
 
@@ -35,8 +35,30 @@ maze = maze.map((row) => {
 // move to next possible position (up, right, down, left)
 let path = []; // breadcrumb: { row: 3, col: 3 }, { row: 2, col: 3 }, { row: 2, col: 4 }
 
+const moves = [
+  [0,1], // right (=> 0 row move, 1 col move right)
+  [1,0], // down (=> 1 row move down, 0 col move)
+  [0, -1], // left (=> 0 row move, 1 col move left)
+  [-1, 0] // up (=> 1 row move up, 0 col move)
+]
+
+// print the rows of the maze
+const printMaze = (maze) => {
+  // console.log(colors.FgMagenta);  
+  maze.forEach((row) => {
+    // join all columns of the row together to a string
+    row.forEach(col => {
+      // show player moves in yellow. everything else purple
+      process.stdout.write(col === "X" ? colors.FgYellow : colors.FgMagenta)
+      process.stdout.write(col) // print symbol
+    })
+    console.log() // newline after each row
+  });
+  console.log(colors.Reset);
+};
+
 /**
- * 
+ * Checks if given row, col is not occupied
  */
 const checkNextField = (maze, row, col) => {
   if (maze[row][col] === "E") {
@@ -50,13 +72,6 @@ const checkNextField = (maze, row, col) => {
   // move not possible
   return false;
 };
-
-const moves = [
-  [0,1], // right (=> 0 row move, 1 col move right)
-  [1,0], // down (=> 1 row move down, 0 col move)
-  [0, -1], // left (=> 0 row move, 1 col move left)
-  [-1, 0] // up (=> 1 row move up, 0 col move)
-]
 
 /**
  * Check next possible move
@@ -98,17 +113,7 @@ const move = (maze, row, col) => {
   return false
 };
 
-// print the rows of the maze
-const printMaze = (maze) => {
-  console.log(colors.FgMagenta);
-  maze.forEach((row) => {
-    // join all columns of the row together to a string
-    console.log(row.join(" "));
-  });
-  console.log(colors.Reset);
-};
-
-// display maze
+// display initial maze
 printMaze(maze);
 
 do {
@@ -139,8 +144,9 @@ do {
 
 } while (playerPlaced === false);
 
+console.log()
 console.log("Gute Wahl!");
-console.log("Reihe: ", row, ",", "Spalte: ", col);
+console.log();
 console.log("Jetzt geht's loooooos!");
 
 // mark start position
@@ -150,3 +156,8 @@ printMaze(maze);
 
 // now move recursively until we found a way...
 move(maze, row, col);
+
+// no way found at the end?
+if(!gameOver) {
+  console.error("NO way found :-O")
+}

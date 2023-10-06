@@ -24,6 +24,7 @@ Copy the file "maze.example.js" to a file "maze.js"
 
 Adapt the maze in the maze.js
 
-Use pipe bars | to place obstacles for player.
+Use any symbol (e.g. pipe bar | or star *) to place obstacles for player.
+(see maze.example.js)
 
 Enjoyyyyy little grasshopper...

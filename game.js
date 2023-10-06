@@ -14,11 +14,9 @@ let maze = [
 // load your custom maze from file (if exists)
 try {
   maze = require("./maze.js");
-}
-catch(err) {
+} catch (err) {
   // no custom maze found. no prob. just keep default above. do nothing
 }
-
 
 let row, col;
 let playerPlaced = false;
@@ -36,23 +34,23 @@ maze = maze.map((row) => {
 let path = []; // breadcrumb: { row: 3, col: 3 }, { row: 2, col: 3 }, { row: 2, col: 4 }
 
 const moves = [
-  [0,1], // right (=> 0 row move, 1 col move right)
-  [1,0], // down (=> 1 row move down, 0 col move)
+  [0, 1], // right (=> 0 row move, 1 col move right)
+  [1, 0], // down (=> 1 row move down, 0 col move)
   [0, -1], // left (=> 0 row move, 1 col move left)
-  [-1, 0] // up (=> 1 row move up, 0 col move)
-]
+  [-1, 0], // up (=> 1 row move up, 0 col move)
+];
 
 // print the rows of the maze
 const printMaze = (maze) => {
-  // console.log(colors.FgMagenta);  
+  // console.log(colors.FgMagenta);
   maze.forEach((row) => {
     // join all columns of the row together to a string
-    row.forEach(col => {
+    row.forEach((col) => {
       // show player moves in yellow. everything else purple
-      process.stdout.write(col === "X" ? colors.FgYellow : colors.FgMagenta)
-      process.stdout.write(col) // print symbol
-    })
-    console.log() // newline after each row
+      process.stdout.write(col === "X" ? colors.FgYellow : colors.FgMagenta);
+      process.stdout.write(col); // print symbol
+    });
+    console.log(); // newline after each row
   });
   console.log(colors.Reset);
 };
@@ -80,37 +78,30 @@ const checkNextField = (maze, row, col) => {
  * If NO move possible from list: UNDO last operation and return back one level
  */
 const move = (maze, row, col) => {
-
   // check next possible move one after the other (up, right, down, left)
-  for(let [rowDiff, colDiff] of moves) {
-    let rowNext = row+rowDiff
-    let colNext = col+colDiff
+  for (let [rowDiff, colDiff] of moves) {
+    let rowNext = row + rowDiff;
+    let colNext = col + colDiff;
 
     // check if move possible (= field not occupied already)
     if (checkNextField(maze, rowNext, colNext)) {
       // reached the end? finish!!!
-      if(gameOver) break;
+      if (gameOver) return;
 
       // not at the end => mark current path and go on...
       maze[rowNext][colNext] = "X";
       path.push([rowNext, colNext]);
-      move(maze, rowNext, colNext)
+      move(maze, rowNext, colNext);
     }
   }
 
-  if (gameOver) {
-    printMaze(maze);
-    console.log("YOU nailed it! You found the way to the exit!");
-    if (debug) {
-      console.log("Your path through maze:", path);
-    }
-    return true
-  }
+  // way found? exit
+  if(gameOver) return
 
   // no possible move anymore?? undo last move!
-  maze[row][col] = " "
-  path.pop()
-  return false
+  maze[row][col] = " ";
+  path.pop();
+  return false;
 };
 
 // display initial maze
@@ -118,19 +109,26 @@ printMaze(maze);
 
 do {
   // let user place player at position
-  row = readline.questionInt(`Row pleeeeze\n(Min: 2, Max: ${maze.length-1}): `);
-
-  col = readline.questionInt(
-    `Column pleeeeze\n(Min: 2, Max: ${maze[0].length-1}): `
+  row = readline.questionInt(
+    `Row pleeeeze\n(Min: 2, Max: ${maze.length - 1}): `
   );
 
-  row = parseInt(row)
-  col = parseInt(col)
+  col = readline.questionInt(
+    `Column pleeeeze\n(Min: 2, Max: ${maze[0].length - 1}): `
+  );
+
+  row = parseInt(row);
+  col = parseInt(col);
 
   row--;
   col--;
 
-  if(row < 1 || row >= maze.length-1 || col < 1 || col >= maze[0].length-1 ) {
+  if (
+    row < 1 ||
+    row >= maze.length - 1 ||
+    col < 1 ||
+    col >= maze[0].length - 1
+  ) {
     console.log("Position außerhalb von Board! Komm schon, so schwer?");
     continue;
   }
@@ -141,10 +139,9 @@ do {
   }
 
   playerPlaced = true;
-
 } while (playerPlaced === false);
 
-console.log()
+console.log();
 console.log("Gute Wahl!");
 console.log();
 console.log("Jetzt geht's loooooos!");
@@ -157,7 +154,16 @@ printMaze(maze);
 // now move recursively until we found a way...
 move(maze, row, col);
 
+printMaze(maze);
+
 // no way found at the end?
-if(!gameOver) {
-  console.error("NO way found :-O")
+if (gameOver) {
+  console.log("YOU nailed it! You found the way to the exit!");
+  if (debug) {
+    console.log("Your path through maze:", path);
+  }
+  return true;
+} 
+else {
+  console.error("NO way found :-O");
 }
